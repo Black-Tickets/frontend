@@ -1,0 +1,24 @@
+name: CI — Frontend
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+permissions:
+  contents: write
+
+jobs:
+  ci:
+    uses: Black-Tickets/shared-workflow/.github/workflows/ci-template.yml@main
+    with:
+      service-name: new_ticket-frontend
+      service-path: .
+      runtime: node
+      node-version: "18"
+      environment: ${{ github.ref == 'refs/heads/main' && 'main' || 'develop' }}
+      sonar-enabled: true
+      notifications-enabled: true
+      sonar-project-key: new_ticket-frontend
+    secrets: inherit
