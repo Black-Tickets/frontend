@@ -1,0 +1,24 @@
+name: CD - Update Helm Chart
+
+on:
+  workflow_run:
+    workflows: ["CI - Build and Push"]
+    types: [completed]
+    branches: [dev, main]
+  workflow_dispatch:
+    inputs:
+      image-tag:
+        required: true
+        type: string
+        description: "Image tag to update in Helm chart"
+
+jobs:
+  cd:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    uses: Black-Tickets/shared-workflow/.github/workflows/cd-template.yml@main
+    with:
+      service-name: frontend
+      image-tag: ${{ github.event.inputs.image-tag || github.sha }}
+      environment: ${{ github.event.workflow_run.head_branch == 'dev' && 'develop' || 'main' }}
+    secrets:
+      HELM_REPO_PAT: ${{ secrets.HELM_REPO_PAT }}
